@@ -1,0 +1,17 @@
+openapi: 3.0.0
+info:
+  title: Platform API
+  version: 1.0.0
+paths:
+  /clients:
+    get:
+      summary: List clients
+      description: Returns a list of clients.
+  /clients/{id}:
+    get:
+      summary: Get client
+      description: Returns a sinlge client by ID.
+  /reports/completion:
+    post:
+      summary: Generate completion documents
+      description: Generates completion documents for eligible clients in a date range.
