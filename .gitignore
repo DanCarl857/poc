@@ -1,1 +1,10 @@
 .poc-venv/
+.env
+data/app.db
+
+# Python
+__pycache__/
+app/
+*.py[cod]
+*.pyo
+*.pyd
