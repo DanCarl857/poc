@@ -8,13 +8,14 @@ def load_markdown_docs() -> list[Document]:
     docs = []
     docs_path = Path(settings.DOCS_PATH)
 
-    for file_path in docs.path.glob("*.md"):
+    for file_path in docs_path.glob("*.md"):
         content = file_path.read_text(encoding="utf-8")
+
         docs.append(
             Document(
                 content=content,
                 source=file_path.name,
-                doc_type="markdown"
+                doc_type="markdown",
             )
         )
 
