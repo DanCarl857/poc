@@ -25,6 +25,30 @@ CREATE TABLE IF NOT EXISTS chat_requests (
     prompt_tokens INTEGER NOT NULL DEFAULT 0,
     completion_tokens INTEGER NOT NULL DEFAULT 0,
     total_tokens INTEGER NOT NULL DEFAULT 0,
+    success INTEGER NOT NULL DEFAULT 1,
+    error_message TEXT,
     created_at TEXT NOT NULL,
+    FOREIGN KEY(clinic_id) REFERENCES clinics(id)
+);
+
+CREATE TABLE IF NOT EXISTS document_chunks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chunk_id TEXT NOT NULL UNIQUE,
+    source TEXT NOT NULL,
+    doc_type TEXT NOT NULL,
+    content TEXT NOT NULL,
+    embedding_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cached_answers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    clinic_id INTEGER NOT NULL,
+    question_hash TEXT NOT NULL,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    sources_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    UNIQUE(clinic_id, question_hash),
     FOREIGN KEY(clinic_id) REFERENCES clinics(id)
 );

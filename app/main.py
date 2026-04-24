@@ -1,29 +1,35 @@
 from fastapi import FastAPI, HTTPException
+
+from app.db import init_db
 from app.qa import QASystem
 from app.schemas import AskRequest, AskResponse
-from app.db import init_db
+from app.usage import get_clinic_usage
+from app.openai_client import OpenAIError
 
 app = FastAPI(title="Platform QA POC")
 
 init_db()
 qa_system = QASystem()
 
+
 @app.get("/health")
 def health():
     return {
         "status": "ok",
-        "documents": len(qa_system.documents),
-        "chunks": len(qa_system.chunks),
     }
+
 
 @app.post("/reindex")
 def reindex():
-    qa_system.reload()
-    return {
-        "status": "reloaded",
-        "documents": len(qa_system.documents),
-        "chunks": len(qa_system.chunks),
-    }
+    try:
+        return {
+            "status": "reloaded",
+            **qa_system.reload(),
+        }
+    except OpenAIError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Unexpected indexing error")
 
 
 @app.post("/ask", response_model=AskResponse)
@@ -37,3 +43,20 @@ def ask(request: AskRequest):
         )
     except ValueError as e:
         raise HTTPException(status_code=429, detail=str(e))
+    except OpenAIError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Unexpected server error")
+
+
+@app.get("/admin/clinics/{clinic_key}/usage")
+def clinic_usage(clinic_key: str):
+    try:
+        return get_clinic_usage(clinic_key)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.get("/metrics")
+def metrics():
+    return {"status": "ok"}
